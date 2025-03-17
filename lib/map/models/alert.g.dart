@@ -13,22 +13,17 @@ Alert _$AlertFromJson(Map<String, dynamic> json) => Alert(
       deadLine: json['deadLine'] == null
           ? null
           : DateTime.parse(json['deadLine'] as String),
-      bloodType: $enumDecodeNullable(_$BloodTypeEnumMap, json['bloodType']),
+      bloodType: json['bloodType'] as String?,
+      status: json['status'] as String?,
+      title: json['title'] as String?,
+      description: json['description'] as String?,
     );
 
 Map<String, dynamic> _$AlertToJson(Alert instance) => <String, dynamic>{
       'launchDate': instance.launchDate?.toIso8601String(),
       'deadLine': instance.deadLine?.toIso8601String(),
-      'bloodType': _$BloodTypeEnumMap[instance.bloodType],
+      'bloodType': instance.bloodType,
+      'status': instance.status,
+      'title': instance.title,
+      'description': instance.description,
     };
-
-const _$BloodTypeEnumMap = {
-  BloodType.aPos: 'A+',
-  BloodType.aNeg: 'A-',
-  BloodType.bPos: 'B+',
-  BloodType.bNeg: 'B-',
-  BloodType.abPos: 'AB+',
-  BloodType.abNeg: 'AB-',
-  BloodType.oPos: 'O+',
-  BloodType.oNeg: 'O-',
-};

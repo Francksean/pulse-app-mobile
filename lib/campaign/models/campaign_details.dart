@@ -9,8 +9,6 @@ class CampaignDetails {
   final int? id;
   final String? title;
   final String? description;
-  final String? banner;
-  final CenterDetails? center;
   final DateTime? startDate;
   final DateTime? endDate;
   final CampaignStatus? status;
@@ -19,8 +17,6 @@ class CampaignDetails {
     this.id,
     this.title,
     this.description,
-    this.banner,
-    this.center,
     this.startDate,
     this.endDate,
     this.status,
@@ -38,8 +34,6 @@ class CampaignDetails {
     int? id,
     String? title,
     String? description,
-    String? banner,
-    CenterDetails? center,
     DateTime? startDate,
     DateTime? endDate,
     CampaignStatus? status,
@@ -48,8 +42,6 @@ class CampaignDetails {
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
-      banner: banner ?? this.banner,
-      center: center ?? this.center,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       status: status ?? this.status,

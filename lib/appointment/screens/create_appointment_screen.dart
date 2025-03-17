@@ -1,5 +1,8 @@
+import 'package:day_night_time_picker/day_night_time_picker.dart';
+import 'package:day_night_time_picker/lib/daynight_timepicker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pulse_app_mobile/appointment/cubit/appointment_creation_cubit.dart';
 import 'package:pulse_app_mobile/appointment/enums/appointment_type.dart';
@@ -11,7 +14,8 @@ import 'package:table_calendar/table_calendar.dart';
 // Enum for appointment types
 
 class CreateAppointmentScreen extends StatefulWidget {
-  const CreateAppointmentScreen({super.key});
+  String centerId;
+  CreateAppointmentScreen({super.key, required this.centerId});
 
   @override
   _CreateAppointmentScreenState createState() =>
@@ -23,7 +27,7 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
   final _descriptionController = TextEditingController();
   DateTime? _selectedDate;
   DateTime? _focusedDate = DateTime.now();
-  AppointmentType? _selectedType;
+  AppointmentType? _selectedType = AppointmentType.advice;
 
   // Map to store descriptions for each appointment type
   final Map<AppointmentType, String> _typeDescriptions = {
@@ -43,7 +47,7 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
     if (cubitState is AppointmentCreationInitial &&
         cubitState.savedAppointment != null) {
       final savedAppointment = cubitState.savedAppointment!;
-      _descriptionController.text = savedAppointment.description;
+      _descriptionController.text = savedAppointment.description!;
       _selectedDate = savedAppointment.appointmentDate;
 
       // Map the type string to enum
@@ -139,191 +143,238 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
             );
           }
         },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TableCalendar(
-                    firstDay: DateTime.utc(2010, 10, 16),
-                    lastDay: DateTime.utc(2030, 3, 14),
-                    focusedDay: _focusedDate!,
-                    startingDayOfWeek: StartingDayOfWeek.monday,
-                    calendarStyle: CalendarStyle(
-                      cellMargin: const EdgeInsets.all(4),
-                      selectedDecoration: const BoxDecoration(
-                          color: AppColors.orange, shape: BoxShape.circle),
-                      todayDecoration: BoxDecoration(
-                          color: AppColors.orange.withOpacity(0.5),
-                          shape: BoxShape.circle),
-                    ),
-                    selectedDayPredicate: (day) {
-                      return isSameDay(_selectedDate, day);
-                    },
-                    onDaySelected: (selectedDay, focusedDay) {
-                      setState(() {
-                        _selectedDate = focusedDay;
-                        _selectDate(focusedDay);
-                        _focusedDate = focusedDay;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  // Description field
-                  const Text(
-                    "Description",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal,
-                        color: AppColors.black),
-                  ),
-
-                  const SizedBox(height: 8),
-                  CustomInputField(
-                    hintText: "Entrez la description du rendez-vous",
-                    controller: _descriptionController,
-                    maxLines: 3,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Description requise";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Appointment type selection
-                  const Text(
-                    "Type de rendez-vous",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal,
-                        color: AppColors.black),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IntrinsicHeight(
-                      child: Row(
-                        children: [
-                          _buildTypeOption(AppointmentType.advice,
-                              Icons.chat_bubble_outline, Colors.green[300]!),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          const VerticalDivider(
-                            thickness: 1,
-                            width: 1,
-                            endIndent: 30,
-                            indent: 30,
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          _buildTypeOption(AppointmentType.levy,
-                              Icons.science_outlined, Colors.blue[300]!),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          const VerticalDivider(
-                            thickness: 1,
-                            width: 1,
-                            endIndent: 30,
-                            indent: 30,
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          _buildTypeOption(AppointmentType.donation,
-                              Icons.volunteer_activism, AppColors.red),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Type description
-                  if (_selectedType != null) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.orange.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            _selectedType == AppointmentType.advice
-                                ? Icons.info_outline
-                                : _selectedType == AppointmentType.levy
-                                    ? Icons.science_outlined
-                                    : Icons.volunteer_activism,
-                            color: AppColors.orange,
+                          TableCalendar(
+                            firstDay: DateTime.utc(2010, 10, 16),
+                            lastDay: DateTime.utc(2030, 3, 14),
+                            focusedDay: _focusedDate!,
+                            startingDayOfWeek: StartingDayOfWeek.monday,
+                            calendarStyle: CalendarStyle(
+                              cellMargin: const EdgeInsets.all(4),
+                              selectedDecoration: const BoxDecoration(
+                                  color: AppColors.orange,
+                                  shape: BoxShape.circle),
+                              todayDecoration: BoxDecoration(
+                                  color: AppColors.orange.withOpacity(0.5),
+                                  shape: BoxShape.circle),
+                            ),
+                            selectedDayPredicate: (day) {
+                              return isSameDay(_selectedDate, day);
+                            },
+                            onDaySelected: (selectedDay, focusedDay) {
+                              final currentDateTime = DateTime.now();
+                              Navigator.of(context).push(showPicker(
+                                  // minHour: 9,
+                                  // maxHour: 17,
+                                  blurredBackground: true,
+                                  accentColor: AppColors.red.withOpacity(0.5),
+                                  value: Time(
+                                      hour: currentDateTime.hour,
+                                      minute: currentDateTime.minute,
+                                      second: currentDateTime.second),
+                                  onChange: (pickedTime) {
+                                    print(pickedTime);
+                                    final DateTime combinedDateTime = DateTime(
+                                      selectedDay.year,
+                                      selectedDay.month,
+                                      selectedDay.day,
+                                      pickedTime.hour,
+                                      pickedTime.minute,
+                                    );
+                                    setState(() {
+                                      _selectedDate = focusedDay;
+                                      _selectDate(combinedDateTime);
+                                      _focusedDate = focusedDay;
+                                    });
+                                  }));
+                            },
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              _typeDescriptions[_selectedType]!,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.black87,
+
+                          const SizedBox(height: 15),
+
+                          // Description field
+                          const Text(
+                            "Description",
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                color: AppColors.black),
+                          ),
+
+                          const SizedBox(height: 8),
+                          CustomInputField(
+                            hintText: "Entrez la description du rendez-vous",
+                            controller: _descriptionController,
+                            maxLines: 3,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Description requise";
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Appointment type selection
+                          const Text(
+                            "Type de rendez-vous",
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                color: AppColors.black),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: IntrinsicHeight(
+                              child: Row(
+                                children: [
+                                  _buildTypeOption(
+                                      AppointmentType.advice,
+                                      Icons.chat_bubble_outline,
+                                      Colors.green[300]!),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  const VerticalDivider(
+                                    thickness: 1,
+                                    width: 1,
+                                    endIndent: 30,
+                                    indent: 30,
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  _buildTypeOption(
+                                      AppointmentType.levy,
+                                      Icons.science_outlined,
+                                      Colors.blue[300]!),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  const VerticalDivider(
+                                    thickness: 1,
+                                    width: 1,
+                                    endIndent: 30,
+                                    indent: 30,
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  _buildTypeOption(AppointmentType.donation,
+                                      Icons.volunteer_activism, AppColors.red),
+                                ],
                               ),
                             ),
                           ),
+
+                          // Type description
+                          if (_selectedType != null) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.orange.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    _selectedType == AppointmentType.advice
+                                        ? Icons.info_outline
+                                        : _selectedType == AppointmentType.levy
+                                            ? Icons.science_outlined
+                                            : Icons.volunteer_activism,
+                                    color: AppColors.orange,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      _typeDescriptions[_selectedType]!,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+
+                          const SizedBox(height: 40),
                         ],
                       ),
                     ),
-                  ],
-
-                  const SizedBox(height: 40),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: BlocBuilder<AppointmentCreationCubit, AppointmentCreationState>(
-          builder: (context, state) {
-            final isLoading = state is AppointmentCreationLoading;
-            return ElevatedButton(
-              onPressed: isLoading ? null : _submitForm,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.red,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                minimumSize: const Size(double.infinity, 56),
               ),
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_alarm),
-                        SizedBox(
-                          width: 5,
+              Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    AppColors.white,
+                    Color.fromARGB(193, 255, 255, 255),
+                    Color.fromARGB(0, 255, 255, 255)
+                  ],
+                )),
+                padding: const EdgeInsets.all(16.0),
+                child: BlocBuilder<AppointmentCreationCubit,
+                    AppointmentCreationState>(
+                  builder: (context, state) {
+                    final isLoading = state is AppointmentCreationLoading;
+                    return ElevatedButton(
+                      onPressed: isLoading ? null : _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        Text(
-                          "Créer le rendez-vous",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-            );
-          },
+                        minimumSize: const Size(double.infinity, 56),
+                      ),
+                      child: isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.add_alarm),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  "Créer le rendez-vous",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

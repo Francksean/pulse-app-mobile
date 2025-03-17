@@ -5,7 +5,9 @@ class FeedAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar();
+    return AppBar(
+      backgroundColor: Colors.transparent,
+    );
   }
 
   @override

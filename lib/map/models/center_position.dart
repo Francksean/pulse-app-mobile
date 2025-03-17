@@ -2,30 +2,31 @@ import 'dart:ffi';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'center_position.g.dart';
+
 @JsonSerializable()
 class CenterPosition {
-  final String? centerId;
-  final String? centerName;
+  final int? id;
+  final String? name;
   final double? latitude;
   final double? longitude;
 
   CenterPosition({
-    required this.centerId,
-    required this.centerName,
+    required this.id,
+    required this.name,
     required this.latitude,
     required this.longitude,
   });
 
   // Méthode copyWith
   CenterPosition copyWith({
-    String? centerId,
-    String? centerName,
+    int? id,
+    String? name,
     double? latitude,
     double? longitude,
   }) {
     return CenterPosition(
-      centerId: centerId ?? this.centerId,
-      centerName: centerName ?? this.centerName,
+      id: id ?? this.id,
+      name: name ?? this.name,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
     );

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pulse_app_mobile/campaign/cubit/campaign_details/campaign_details_cubit.dart';
-import 'package:pulse_app_mobile/campaign/models/campaign_details.dart';
 import 'package:pulse_app_mobile/common/constants/app_colors.dart';
 import 'package:pulse_app_mobile/common/constants/app_font_sizes.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:intl/intl.dart';
 import 'package:pulse_app_mobile/campaign/enums/campaign_status.dart';
 
 class CampaignDetailsScreen extends StatefulWidget {
   final String? campaignId;
-  const CampaignDetailsScreen({super.key, required this.campaignId});
+  final String? centerName;
+  const CampaignDetailsScreen(
+      {super.key, required this.campaignId, required this.centerName});
   @override
   State<CampaignDetailsScreen> createState() => _CampaignDetailsScreenState();
 }
@@ -25,26 +24,26 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
 
   String getStatusText(CampaignStatus status) {
     switch (status) {
-      case CampaignStatus.active:
+      case CampaignStatus.ACTIVE:
         return 'Active';
-      case CampaignStatus.upcoming:
+      case CampaignStatus.UPCOMING:
         return 'À venir';
-      case CampaignStatus.completed:
+      case CampaignStatus.COMPLETED:
         return 'Terminée';
-      case CampaignStatus.cancelled:
+      case CampaignStatus.CANCELLED:
         return 'Annulée';
     }
   }
 
   Color getStatusColor(CampaignStatus status) {
     switch (status) {
-      case CampaignStatus.active:
+      case CampaignStatus.ACTIVE:
         return Colors.teal.shade400;
-      case CampaignStatus.upcoming:
+      case CampaignStatus.UPCOMING:
         return Colors.blue.shade400;
-      case CampaignStatus.completed:
+      case CampaignStatus.COMPLETED:
         return Colors.grey.shade600;
-      case CampaignStatus.cancelled:
+      case CampaignStatus.CANCELLED:
         return Colors.red.shade400;
     }
   }
@@ -97,34 +96,11 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(15),
                                   child: Image.network(
-                                    "https://wallpaper.forfun.com/fetch/d8/d86bd391b8476c2308717c0948116a1e.jpeg",
+                                    "https://images.ctfassets.net/h8qzhh7m9m8u/2DqO6wap1WDkhNyCs8Pb94/b6cd52230589861dca85927d04eef945/2100x1200_blood-donor.jpg?fm=webp&w=2100&h=1200&fit=fill&bg=rgb:FFFFFF&q=80",
                                     fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
-                              Positioned(
-                                  top: 15,
-                                  left: 15,
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      const CircleAvatar(
-                                        maxRadius: 15,
-                                        backgroundImage: NetworkImage(
-                                            "https://static.vecteezy.com/ti/vecteur-libre/t1/4493181-hopital-batiment-pour-soins-de-sante-fond-vector-illustration-avec-ambulance-voiture-medecin-patient-infirmieres-et-clinique-medicale-exterieur-gratuit-vectoriel.jpg"),
-                                      ),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
-                                      Text(campaign.center!.centerName!,
-                                          style: const TextStyle(
-                                              color: AppColors.white,
-                                              fontSize: FontSizes.upperLarge,
-                                              fontWeight: FontWeight.bold))
-                                    ],
-                                  )),
                               Positioned(
                                   bottom: 0,
                                   left: 0,
@@ -145,14 +121,46 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
                                   )),
                               Positioned(
                                   left: 10,
-                                  bottom: 5,
-                                  child: Text(
-                                      overflow: TextOverflow.ellipsis,
-                                      campaign.title!,
-                                      style: const TextStyle(
-                                          fontSize: FontSizes.upperExtra,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.white)))
+                                  bottom: 10,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          overflow: TextOverflow.ellipsis,
+                                          campaign.title!,
+                                          style: const TextStyle(
+                                              fontSize: FontSizes.upperExtra,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.white)),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          const CircleAvatar(
+                                            maxRadius: 10,
+                                            backgroundImage: NetworkImage(
+                                                "https://static.vecteezy.com/ti/vecteur-libre/t1/4493181-hopital-batiment-pour-soins-de-sante-fond-vector-illustration-avec-ambulance-voiture-medecin-patient-infirmieres-et-clinique-medicale-exterieur-gratuit-vectoriel.jpg"),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text(widget.centerName!,
+                                              style: const TextStyle(
+                                                  color: AppColors.white,
+                                                  fontSize:
+                                                      FontSizes.upperLarge,
+                                                  fontWeight: FontWeight.bold))
+                                        ],
+                                      )
+                                    ],
+                                  ))
                             ],
                           ),
                           const SizedBox(
@@ -176,7 +184,7 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
                               Text(
                                   maxLines: 8,
                                   style: const TextStyle(
-                                      fontSize: FontSizes.upperMedium,
+                                      fontSize: FontSizes.lowerBig,
                                       color: AppColors.black,
                                       fontWeight: FontWeight.w300),
                                   campaign.description!)

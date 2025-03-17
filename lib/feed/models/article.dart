@@ -1,10 +1,12 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pulse_app_mobile/feed/models/author.dart';
 
 part 'article.g.dart';
 
 @JsonSerializable()
 class Article {
   final String? id;
+  final Author? author;
   final String? title;
   final String? content;
   final DateTime? postedOn;
@@ -17,6 +19,7 @@ class Article {
     required this.content,
     required this.postedOn,
     required this.coverUrl,
+    this.author,
     this.images,
   });
 
@@ -24,6 +27,7 @@ class Article {
       {String? id,
       String? title,
       String? content,
+      Author? author,
       DateTime? postedOn,
       String? coverUrl,
       List<String>? images}) {
@@ -32,6 +36,7 @@ class Article {
         title: title ?? this.title,
         content: content ?? this.content,
         postedOn: postedOn ?? postedOn,
+        author: author ?? this.author,
         coverUrl: coverUrl ?? this.coverUrl,
         images: images ?? this.images);
   }

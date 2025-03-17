@@ -42,6 +42,7 @@ class _CommonScaffoldState extends State<CommonScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true,
       appBar: appBars[_selectedIndex],

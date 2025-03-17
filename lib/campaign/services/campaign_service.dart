@@ -5,10 +5,12 @@ class CampaignService {
   final dioClient = DioClient.instance;
 
   Future<CampaignDetails> fetchCampaignById(String campaignId) async {
-    final response = await dioClient.dio.get("/url-bla-bla-bla");
+    final response = await dioClient.dio.get("/campaigns/$campaignId");
 
     if (response.statusCode == 200) {
-      CampaignDetails campaignDetails = response.data;
+      dynamic datas = response.data;
+      print(datas);
+      CampaignDetails campaignDetails = CampaignDetails.fromJson(datas);
       return campaignDetails;
     } else {
       throw Exception(

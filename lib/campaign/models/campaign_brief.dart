@@ -4,16 +4,14 @@ part 'campaign_brief.g.dart';
 
 @JsonSerializable()
 class CampaignBrief {
-  final String? campaignId;
-  final DateTime? launchDate;
+  final int? id;
   final DateTime? startDate;
   final DateTime? endDate;
   final String? title;
   final String? description;
 
   CampaignBrief({
-    this.campaignId,
-    this.launchDate,
+    this.id,
     this.startDate,
     this.endDate,
     this.title,
@@ -26,7 +24,7 @@ class CampaignBrief {
   Map<String, dynamic> toJson() => _$CampaignBriefToJson(this);
 
   CampaignBrief copyWith({
-    String? campaignId,
+    int? id,
     DateTime? launchDate,
     DateTime? startDate,
     DateTime? endDate,
@@ -34,8 +32,7 @@ class CampaignBrief {
     String? description,
   }) {
     return CampaignBrief(
-      campaignId: campaignId ?? this.campaignId,
-      launchDate: launchDate ?? this.launchDate,
+      id: id ?? this.id,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       title: title ?? this.title,

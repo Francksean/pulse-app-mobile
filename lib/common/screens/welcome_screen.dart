@@ -7,6 +7,7 @@ import 'package:pulse_app_mobile/common/constants/app_colors.dart';
 import 'package:pulse_app_mobile/common/constants/app_font_sizes.dart';
 import 'package:pulse_app_mobile/common/cubits/location/location_cubit.dart';
 import 'package:pulse_app_mobile/common/cubits/location/location_state.dart';
+import 'package:pulse_app_mobile/common/database/hive_service.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -21,12 +22,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       body: BlocListener<LocationCubit, LocationState>(
         listener: (context, state) {
-          // TODO: implement listener
+          // await HiveService.ensureInitialized();
+          // final hiveService = HiveService();
           // if (state is LocationLoadedState) {
-          print("OOOOOOOOOOOOO");
-          Future.delayed(const Duration(milliseconds: 1500), () {
-            context.push("/campaign/1");
-          });
+          //   if (hiveService.getUsername() != null &&
+          //       hiveService.getToken() != null) {
+          context.go("/app");
+          // }
+          // context.push("/auth");
           // }
         },
         child: Container(

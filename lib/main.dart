@@ -9,9 +9,10 @@ import 'package:pulse_app_mobile/campaign/screens/campaign_details_screen.dart';
 import 'package:pulse_app_mobile/common/common_scaffold.dart';
 import 'package:pulse_app_mobile/common/constants/app_colors.dart';
 import 'package:pulse_app_mobile/common/cubits/location/location_cubit.dart';
-import 'package:pulse_app_mobile/common/screens/welcome_screen.dart';
+import 'package:pulse_app_mobile/feed/cubit/article_cubit.dart';
+import 'package:pulse_app_mobile/feed/cubit/comment_cubit.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 
@@ -38,15 +39,18 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const CommonScaffold(),
         ),
         GoRoute(
-          path: "/campaign/:campaignId",
+          path: "/campaign/:campaignId/:centerName",
           builder: (context, state) => CampaignDetailsScreen(
             campaignId: state.pathParameters['campaignId'],
+            centerName: state.pathParameters['centerName'],
           ),
         ),
         GoRoute(
-          path: "/appointment-creation",
+          path: "/appointment-creation/:centerId",
           name: "appointment-creation",
-          builder: (context, state) => const CreateAppointmentScreen(),
+          builder: (context, state) => CreateAppointmentScreen(
+            centerId: state.pathParameters['centerId']!,
+          ),
         ),
       ],
     );
@@ -60,6 +64,12 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => AppointmentCreationCubit(),
+        ),
+        BlocProvider(
+          create: (context) => ArticleCubit(),
+        ),
+        BlocProvider(
+          create: (context) => CommentCubit(),
         ),
       ],
       child: MaterialApp.router(

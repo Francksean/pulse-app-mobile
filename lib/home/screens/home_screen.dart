@@ -50,6 +50,7 @@ class HomeScreen extends StatelessWidget {
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
                     child: ListView.builder(
+                      padding: const EdgeInsets.only(left: 14),
                       scrollDirection: Axis.horizontal,
                       itemCount: 5,
                       itemBuilder: (context, index) {
@@ -63,6 +64,7 @@ class HomeScreen extends StatelessWidget {
               } else if (state is ErrorState) {
               } else if (state is HomeArticleLoadedState) {
                 return ListView.builder(
+                    padding: const EdgeInsets.only(left: 14),
                     scrollDirection: Axis.horizontal,
                     itemCount: 5,
                     itemBuilder: (BuildContext context, int index) {

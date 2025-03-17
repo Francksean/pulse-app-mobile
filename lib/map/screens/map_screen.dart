@@ -31,7 +31,7 @@ class _MapScreenState extends State<MapScreen> {
     if (locationState is LocationLoadedState) {
       final center = LatLng(
           locationState.location.latitude!, locationState.location.longitude!);
-      List<LatLng> corners = MapUtils.getSquareCorners(center, 1);
+      List<LatLng> corners = MapUtils.getSquareCorners(center, 10);
       print(corners);
       mapCenterCubit.loadCenters(corners);
     }
@@ -46,7 +46,7 @@ class _MapScreenState extends State<MapScreen> {
           final initialLatitude = state.location.latitude!;
           return FlutterMap(
             options: MapOptions(
-                initialZoom: 15,
+                initialZoom: 12,
                 minZoom: 3,
                 initialCenter: LatLng(initialLatitude, initialLongitude)),
             children: [
@@ -75,9 +75,6 @@ class _MapScreenState extends State<MapScreen> {
                           rotate: false,
                           child: GestureDetector(
                             onTap: () {
-                              final centerDetailsCubit =
-                                  context.read<CenterDetailsCubit>();
-                              centerDetailsCubit.loadCenterDetails("");
                               showModalBottomSheet(
                                 barrierColor: Colors.transparent,
                                 backgroundColor: Colors.transparent,
@@ -85,7 +82,7 @@ class _MapScreenState extends State<MapScreen> {
                                 builder: (BuildContext context) {
                                   return BlocProvider(
                                     create: (context) => CenterDetailsCubit()
-                                      ..loadCenterDetails(""),
+                                      ..loadCenterDetails(element.id!),
                                     child: CustomBottomSheet(
                                       child: BlocBuilder<CenterDetailsCubit,
                                           CenterDetailsState>(

@@ -8,10 +8,7 @@ part of 'campaign_brief.dart';
 
 CampaignBrief _$CampaignBriefFromJson(Map<String, dynamic> json) =>
     CampaignBrief(
-      campaignId: json['campaignId'] as String?,
-      launchDate: json['launchDate'] == null
-          ? null
-          : DateTime.parse(json['launchDate'] as String),
+      id: (json['id'] as num?)?.toInt(),
       startDate: json['startDate'] == null
           ? null
           : DateTime.parse(json['startDate'] as String),
@@ -24,8 +21,7 @@ CampaignBrief _$CampaignBriefFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$CampaignBriefToJson(CampaignBrief instance) =>
     <String, dynamic>{
-      'campaignId': instance.campaignId,
-      'launchDate': instance.launchDate?.toIso8601String(),
+      'id': instance.id,
       'startDate': instance.startDate?.toIso8601String(),
       'endDate': instance.endDate?.toIso8601String(),
       'title': instance.title,

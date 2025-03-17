@@ -1,1 +1,1 @@
-enum CampaignStatus { upcoming, active, completed, cancelled }
+enum CampaignStatus { UPCOMING, ACTIVE, COMPLETED, CANCELLED }

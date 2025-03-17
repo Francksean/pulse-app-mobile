@@ -55,10 +55,13 @@ class CenterDetailsWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: CircleAvatar(
+                child: const CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
-                  backgroundImage: NetworkImage(centerDetails.logoUrl!),
+                  child: Icon(
+                    Icons.add_circle_outlined,
+                    color: AppColors.orange,
+                  ),
                 ),
               ),
             ),
@@ -70,12 +73,12 @@ class CenterDetailsWidget extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: centerDetails.isOpen! ? Colors.green[500] : Colors.red,
+                  color: Colors.green[500],
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(
-                  centerDetails.isOpen! ? 'Ouvert' : 'Fermé',
-                  style: const TextStyle(
+                child: const Text(
+                  'Ouvert',
+                  style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
@@ -93,7 +96,7 @@ class CenterDetailsWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            centerDetails.centerName!,
+            centerDetails.centerSubDetails!.name!,
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -111,7 +114,8 @@ class CenterDetailsWidget extends StatelessWidget {
 
         // Active Campaign Section
         if (centerDetails.activeCampaign != null)
-          _buildCampaignSection(context, centerDetails.activeCampaign!),
+          _buildCampaignSection(context, centerDetails.activeCampaign!,
+              centerDetails.centerSubDetails!.name!),
 
         const SizedBox(height: 20),
 
@@ -123,7 +127,8 @@ class CenterDetailsWidget extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    context.push("/appointment-creation");
+                    context.push(
+                        "/appointment-creation/${centerDetails.centerSubDetails!.id}/${centerDetails.centerSubDetails!.name}");
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.orange,
@@ -139,7 +144,8 @@ class CenterDetailsWidget extends StatelessWidget {
               const SizedBox(width: 10),
               OutlinedButton(
                 onPressed: () async {
-                  await launchUrlString("tel:${centerDetails.phone}");
+                  await launchUrlString(
+                      "tel:${centerDetails.centerSubDetails!.phone}");
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.orange,
@@ -175,7 +181,8 @@ class CenterDetailsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCampaignSection(BuildContext context, CampaignBrief campaign) {
+  Widget _buildCampaignSection(
+      BuildContext context, CampaignBrief campaign, String centername) {
     final dateFormat = DateFormat('dd/MM/yyyy');
 
     return Container(
@@ -229,7 +236,7 @@ class CenterDetailsWidget extends StatelessWidget {
           const SizedBox(height: 12),
           OutlinedButton(
             onPressed: () {
-              context.push('/campaign/1');
+              context.push('/campaign/${campaign.id}/$centername');
             },
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.orange,

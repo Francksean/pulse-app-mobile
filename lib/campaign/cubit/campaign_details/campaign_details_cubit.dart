@@ -13,24 +13,9 @@ class CampaignDetailsCubit extends Cubit<CampaignDetailsState> {
   Future<void> fetchCampaignDetails(String campaignId) async {
     emit(CampaignDetailsLoadingState());
     try {
-      // final CampaignDetails campaignDetails =
-      //     await campaignService.fetchCampaignById(campaignId);
-      Future.delayed(const Duration(milliseconds: 500));
-      emit(CampaignDetailsLoadedState(
-          campaignDetails: CampaignDetails(
-        center: CenterDetails(
-          centerId: "",
-          phone: "+237 675 32 18 36",
-          address: "nyalla logbaba",
-          centerName: 'Centre Principal',
-          bannerUrl: 'https://example.com/banner.jpg',
-          logoUrl: 'https://example.com/logo.png',
-        ),
-        startDate: DateTime.now(),
-        endDate: DateTime.now().add(const Duration(days: 30)),
-        title: 'Campagne de don de sang',
-        description: 'Participez à notre campagne de don de sang !',
-      )));
+      final CampaignDetails campaignDetails =
+          await campaignService.fetchCampaignById(campaignId);
+      emit(CampaignDetailsLoadedState(campaignDetails: campaignDetails));
     } catch (e) {
       emit(CampaignDetailsErrorState(error: e.toString()));
     }

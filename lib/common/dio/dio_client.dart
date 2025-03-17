@@ -8,9 +8,9 @@ class DioClient {
   // Constructeur privé
   DioClient._internal() {
     dio = Dio(BaseOptions(
-      baseUrl: 'https://api.example.com', // URL de base
-      connectTimeout: const Duration(seconds: 5), // Timeout de connexion
-      receiveTimeout: const Duration(seconds: 3), // Timeout de réception
+      baseUrl: 'http://192.168.100.6:9000/api/v1',
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 3),
     ));
 
     dio.interceptors.add(InterceptorsWrapper(
@@ -19,7 +19,7 @@ class DioClient {
         return handler.next(options);
       },
       onResponse: (response, handler) {
-        print('Réponse reçue : ${response.statusCode}');
+        print('Réponse reçue : ${response.data}');
         return handler.next(response);
       },
       onError: (DioException e, handler) {
