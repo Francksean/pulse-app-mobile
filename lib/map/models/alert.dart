@@ -5,16 +5,18 @@ part 'alert.g.dart';
 
 @JsonSerializable()
 class Alert {
+  final int? id;
   final DateTime? launchDate;
-  final DateTime? deadLine;
+  final DateTime? deadline;
   final String? bloodType;
   final String? status;
   final String? title;
   final String? description;
 
   Alert({
+    this.id,
     this.launchDate,
-    this.deadLine,
+    this.deadline,
     this.bloodType,
     this.status,
     this.title,
@@ -26,16 +28,18 @@ class Alert {
   Map<String, dynamic> toJson() => _$AlertToJson(this);
 
   Alert copyWith({
+    int? id,
     DateTime? launchDate,
-    DateTime? deadLine,
+    DateTime? deadline,
     String? bloodType,
     String? status,
     String? title,
     String? description,
   }) {
     return Alert(
+      id: id ?? this.id,
       launchDate: launchDate ?? this.launchDate,
-      deadLine: deadLine ?? this.deadLine,
+      deadline: deadline ?? this.deadline,
       bloodType: bloodType ?? this.bloodType,
       status: status ?? this.status,
       title: title ?? this.title,
@@ -45,6 +49,6 @@ class Alert {
 
   @override
   String toString() {
-    return 'Alert(launchDate: $launchDate, deadLine: $deadLine, bloodType: $bloodType, status: $status, title: $title, description: $description)';
+    return 'Alert(launchDate: $launchDate, deadline: $deadline, bloodType: $bloodType, status: $status, title: $title, description: $description)';
   }
 }

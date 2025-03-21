@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pulse_app_mobile/common/constants/app_colors.dart';
 import 'package:pulse_app_mobile/common/constants/app_font_sizes.dart';
+import 'package:pulse_app_mobile/common/database/secure_storage_service.dart';
+import 'package:pulse_app_mobile/common/dio/dio_client.dart';
 import 'package:pulse_app_mobile/map/models/alert.dart';
 import 'package:toastification/toastification.dart';
 import 'package:intl/intl.dart';
@@ -15,13 +17,39 @@ class AlertSection extends StatefulWidget {
 }
 
 class _AlertSectionState extends State<AlertSection> {
+  final _dioClient = DioClient.instance;
   bool hasResponded = false;
+
+  void _performEnrollment() async {
+    final secureStorage = SecureStorageService();
+    final donorId = await secureStorage.getUserId();
+    final response =
+        await _dioClient.dio.post("/alerts/enroll/${widget.alert.id}/$donorId");
+    if (response.statusCode == 200) {
+      toastification.show(
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.fillColored,
+        title: const Text("Réponse à l'alerte envoyée"),
+        description:
+            const Text("Merci pour votre engagement à sauver des vies ! "),
+        alignment: Alignment.topCenter,
+        autoCloseDuration: const Duration(seconds: 4),
+        primaryColor: AppColors.orange,
+        borderRadius: BorderRadius.circular(12.0),
+        showProgressBar: true,
+        closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
+        dragToClose: true,
+        applyBlurEffect: true,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd/MM/yyyy');
     final daysRemaining =
-        widget.alert.deadLine!.difference(DateTime.now()).inDays;
+        widget.alert.deadline!.difference(DateTime.now()).inDays;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -66,7 +94,7 @@ class _AlertSectionState extends State<AlertSection> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Date limite: ${dateFormat.format(widget.alert.deadLine!)}',
+            'Date limite: ${dateFormat.format(widget.alert.deadline!)}',
             style: const TextStyle(
               color: Colors.black87,
             ),
@@ -143,25 +171,7 @@ class _AlertSectionState extends State<AlertSection> {
                               width: double.infinity,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  toastification.show(
-                                    context: context,
-                                    type: ToastificationType.success,
-                                    style: ToastificationStyle.fillColored,
-                                    title: const Text(
-                                        "Réponse à l'alerte envoyée"),
-                                    description: const Text(
-                                        "Merci pour votre engagement à sauver des vies ! "),
-                                    alignment: Alignment.topCenter,
-                                    autoCloseDuration:
-                                        const Duration(seconds: 4),
-                                    primaryColor: AppColors.orange,
-                                    borderRadius: BorderRadius.circular(12.0),
-                                    showProgressBar: true,
-                                    closeButton: const ToastCloseButton(
-                                        showType: CloseButtonShowType.none),
-                                    dragToClose: true,
-                                    applyBlurEffect: true,
-                                  );
+                                  _performEnrollment();
                                   Navigator.of(context).pop();
                                 },
                                 style: ElevatedButton.styleFrom(

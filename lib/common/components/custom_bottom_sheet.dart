@@ -18,7 +18,7 @@ class CustomBottomSheet extends StatelessWidget {
       width: double.infinity,
       color: Colors.transparent,
       constraints: BoxConstraints(
-        maxHeight: availableHeight * 0.9, // Limit to 90% of available height
+        maxHeight: availableHeight * 0.9,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

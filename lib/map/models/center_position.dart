@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'center_position.g.dart';

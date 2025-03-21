@@ -5,39 +5,39 @@ part 'article.g.dart';
 
 @JsonSerializable()
 class Article {
-  final String? id;
+  final int? id;
   final Author? author;
   final String? title;
+  final String? slug;
   final String? content;
-  final DateTime? postedOn;
-  final String? coverUrl;
+  final DateTime? publishedDate;
   final List<String>? images;
 
   Article({
     required this.id,
     required this.title,
     required this.content,
-    required this.postedOn,
-    required this.coverUrl,
+    required this.publishedDate,
+    required this.slug,
     this.author,
     this.images,
   });
 
   Article copyWith(
-      {String? id,
+      {int? id,
       String? title,
       String? content,
+      String? slug,
       Author? author,
-      DateTime? postedOn,
-      String? coverUrl,
+      DateTime? publishedDate,
       List<String>? images}) {
     return Article(
         id: id ?? this.id,
         title: title ?? this.title,
         content: content ?? this.content,
-        postedOn: postedOn ?? postedOn,
+        slug: slug ?? this.slug,
+        publishedDate: publishedDate ?? publishedDate,
         author: author ?? this.author,
-        coverUrl: coverUrl ?? this.coverUrl,
         images: images ?? this.images);
   }
 

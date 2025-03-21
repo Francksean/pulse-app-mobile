@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pulse_app_mobile/common/constants/app_colors.dart';
 import 'package:pulse_app_mobile/common/utils/custom_utils.dart';
-import 'package:pulse_app_mobile/feed/cubit/article_cubit.dart';
-import 'package:pulse_app_mobile/feed/cubit/comment_cubit.dart';
 import 'package:pulse_app_mobile/feed/models/article.dart';
-import 'package:pulse_app_mobile/feed/models/comment.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:toastification/toastification.dart';
 
@@ -77,11 +72,8 @@ class _FeedArticleCardState extends State<FeedArticleCard> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 24,
-            backgroundImage: NetworkImage(
-              widget.article.coverUrl ?? 'https://via.placeholder.com/48',
-            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -96,19 +88,19 @@ class _FeedArticleCardState extends State<FeedArticleCard> {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  widget.article.author!.username!,
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 14,
-                  ),
-                ),
+                // Text(
+                //   widget.article.author!.username!,
+                //   style: TextStyle(
+                //     color: Colors.grey[500],
+                //     fontSize: 14,
+                //   ),
+                // ),
                 const SizedBox(height: 2),
                 Row(
                   children: [
                     Text(
                       CustomUtils.formatDateDifference(
-                          widget.article.postedOn!, DateTime.now()),
+                          widget.article.publishedDate!, DateTime.now()),
                       style: TextStyle(
                         color: Colors.grey[500],
                         fontSize: 14,
@@ -156,12 +148,7 @@ class _FeedArticleCardState extends State<FeedArticleCard> {
           if (!widget.showFullContent &&
               (widget.article.content?.length ?? 0) > 200)
             TextButton(
-              onPressed: () {
-                // Navigate to full article
-                context
-                    .read<ArticleCubit>()
-                    .loadArticleDetails(widget.article.id!);
-              },
+              onPressed: () {},
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: const Size(50, 30),
@@ -176,8 +163,10 @@ class _FeedArticleCardState extends State<FeedArticleCard> {
   }
 
   Widget _buildImageGallery() {
-    final images = widget.article.images;
-    if (images == null || images.isEmpty) return const SizedBox.shrink();
+    final List<String> images = widget.article.images!
+        .map((image) => "http://192.168.1.114:9000/files/$image")
+        .toList();
+    if (images.isEmpty) return const SizedBox.shrink();
     final length = images.length;
 
     if (images.length == 1) {
@@ -323,10 +312,6 @@ class _FeedArticleCardState extends State<FeedArticleCard> {
                 _isLiked = !_isLiked;
                 if (_isLiked) {
                   _currentReaction = '👍';
-                  // Update like in Cubit
-                  context
-                      .read<ArticleCubit>()
-                      .likeArticle(widget.article.id!, _currentReaction);
                 }
               });
             },

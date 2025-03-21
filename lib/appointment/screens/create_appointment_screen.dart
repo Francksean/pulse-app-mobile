@@ -9,7 +9,9 @@ import 'package:pulse_app_mobile/appointment/enums/appointment_type.dart';
 import 'package:pulse_app_mobile/appointment/model/appointment.dart';
 import 'package:pulse_app_mobile/common/components/custom_input_field.dart';
 import 'package:pulse_app_mobile/common/constants/app_colors.dart';
+import 'package:pulse_app_mobile/common/database/secure_storage_service.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:toastification/toastification.dart';
 
 // Enum for appointment types
 
@@ -27,15 +29,16 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
   final _descriptionController = TextEditingController();
   DateTime? _selectedDate;
   DateTime? _focusedDate = DateTime.now();
-  AppointmentType? _selectedType = AppointmentType.advice;
+  AppointmentType? _selectedType = AppointmentType.ADVICE;
+  final secureStorage = SecureStorageService();
 
   // Map to store descriptions for each appointment type
   final Map<AppointmentType, String> _typeDescriptions = {
-    AppointmentType.advice:
+    AppointmentType.ADVICE:
         "Une session de advice personnalisés avec un professionnel de santé pour discuter et poser vos questions.",
-    AppointmentType.levy:
+    AppointmentType.LEVY:
         "Un rendez-vous pour effectuer des prélèvements sanguins ou autres analyses médicales nécessaires.",
-    AppointmentType.donation:
+    AppointmentType.DONATION:
         "Un rendez-vous pour faire un don de sang, de plasma ou d'autres composants sanguins pour aider ceux qui en ont besoin.",
   };
 
@@ -49,15 +52,6 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
       final savedAppointment = cubitState.savedAppointment!;
       _descriptionController.text = savedAppointment.description!;
       _selectedDate = savedAppointment.appointmentDate;
-
-      // Map the type string to enum
-      if (savedAppointment.type == "advice") {
-        _selectedType = AppointmentType.advice;
-      } else if (savedAppointment.type == "levy") {
-        _selectedType = AppointmentType.levy;
-      } else if (savedAppointment.type == "don") {
-        _selectedType = AppointmentType.donation;
-      }
     }
   }
 
@@ -68,11 +62,10 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
         _selectedDate != null ||
         _selectedType != null) {
       final appointment = Appointment(
+        centerId: widget.centerId,
         appointmentDate: _selectedDate ?? DateTime.now(),
         description: _descriptionController.text,
-        type: _selectedType != null
-            ? _selectedType.toString().split('.').last
-            : "",
+        type: _selectedType.toString().split('.').last,
       );
       context.read<AppointmentCreationCubit>().saveFormState(appointment);
     }
@@ -108,9 +101,10 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
 
       // Create Appointment object
       final appointment = Appointment(
+        centerId: widget.centerId,
         appointmentDate: _selectedDate!,
         description: _descriptionController.text,
-        type: _selectedType.toString().split('.').last,
+        type: _selectedType.toString(),
       );
 
       context.read<AppointmentCreationCubit>().createAppointment(appointment);
@@ -126,12 +120,40 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
       ),
       body: BlocListener<AppointmentCreationCubit, AppointmentCreationState>(
         listener: (context, state) {
-          if (state is AppointmentCreationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Rendez-vous créé avec succès!"),
-                backgroundColor: Colors.green,
-              ),
+          if (state is AppointmentCreationLoading) {
+            toastification.show(
+              context: context,
+              type: ToastificationType.success,
+              style: ToastificationStyle.fillColored,
+              title: const Text("Envoi du mail... !"),
+              description: const Text("Votre rendez-vous se fait enregistrer"),
+              alignment: Alignment.topCenter,
+              autoCloseDuration: const Duration(seconds: 1, milliseconds: 500),
+              primaryColor: AppColors.orange,
+              borderRadius: BorderRadius.circular(12.0),
+              showProgressBar: true,
+              closeButton:
+                  const ToastCloseButton(showType: CloseButtonShowType.none),
+              dragToClose: true,
+              applyBlurEffect: true,
+            );
+          } else if (state is AppointmentCreationSuccess) {
+            toastification.show(
+              context: context,
+              type: ToastificationType.success,
+              style: ToastificationStyle.fillColored,
+              title: const Text("Rendez-vous enregistré !"),
+              description: const Text(
+                  "Vous avez correctement programmé votre rendez-vous"),
+              alignment: Alignment.topCenter,
+              autoCloseDuration: const Duration(seconds: 1),
+              primaryColor: const Color.fromARGB(147, 44, 255, 132),
+              borderRadius: BorderRadius.circular(12.0),
+              showProgressBar: true,
+              closeButton:
+                  const ToastCloseButton(showType: CloseButtonShowType.none),
+              dragToClose: true,
+              applyBlurEffect: true,
             );
             Navigator.pop(context);
           } else if (state is AppointmentCreationError) {
@@ -244,7 +266,7 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
                               child: Row(
                                 children: [
                                   _buildTypeOption(
-                                      AppointmentType.advice,
+                                      AppointmentType.ADVICE,
                                       Icons.chat_bubble_outline,
                                       Colors.green[300]!),
                                   const SizedBox(
@@ -260,7 +282,7 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
                                     width: 5,
                                   ),
                                   _buildTypeOption(
-                                      AppointmentType.levy,
+                                      AppointmentType.LEVY,
                                       Icons.science_outlined,
                                       Colors.blue[300]!),
                                   const SizedBox(
@@ -275,7 +297,7 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
                                   const SizedBox(
                                     width: 5,
                                   ),
-                                  _buildTypeOption(AppointmentType.donation,
+                                  _buildTypeOption(AppointmentType.DONATION,
                                       Icons.volunteer_activism, AppColors.red),
                                 ],
                               ),
@@ -295,9 +317,9 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Icon(
-                                    _selectedType == AppointmentType.advice
+                                    _selectedType == AppointmentType.ADVICE
                                         ? Icons.info_outline
-                                        : _selectedType == AppointmentType.levy
+                                        : _selectedType == AppointmentType.LEVY
                                             ? Icons.science_outlined
                                             : Icons.volunteer_activism,
                                     color: AppColors.orange,
@@ -383,9 +405,9 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
   Widget _buildTypeOption(
       AppointmentType type, IconData icon, Color selectedColor) {
     final isSelected = _selectedType == type;
-    final String typeLabel = type == AppointmentType.advice
+    final String typeLabel = type == AppointmentType.ADVICE
         ? "Conseils"
-        : type == AppointmentType.levy
+        : type == AppointmentType.LEVY
             ? "Prélèvement"
             : "Don";
 

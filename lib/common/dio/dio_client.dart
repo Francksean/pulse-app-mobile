@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'dart:developer';
 
 class DioClient {
   // Instance privée de Dio
@@ -8,14 +9,15 @@ class DioClient {
   // Constructeur privé
   DioClient._internal() {
     dio = Dio(BaseOptions(
-      baseUrl: 'http://192.168.100.6:9000/api/v1',
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 3),
+      baseUrl: 'http://192.168.1.114:9000/api/v1',
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
     ));
 
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        print('Requête envoyée : ${options.uri}');
+        log('Requête envoyée : ${options.uri}');
+        log('Payload envoyé : ${options.data}');
         return handler.next(options);
       },
       onResponse: (response, handler) {

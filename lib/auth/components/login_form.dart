@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pulse_app_mobile/common/components/custom_button.dart';
 import 'package:pulse_app_mobile/common/components/custom_input_field.dart';
 import 'package:pulse_app_mobile/common/constants/app_colors.dart';
-import 'package:pulse_app_mobile/common/database/hive_service.dart';
+import 'package:pulse_app_mobile/common/database/secure_storage_service.dart';
 import 'package:pulse_app_mobile/common/dio/dio_client.dart';
 import 'package:pulse_app_mobile/common/models/user.dart';
 
@@ -35,11 +35,11 @@ class _LoginFormState extends State<LoginForm> {
       if (response.statusCode == 200) {
         final data = response.data;
 
-        await HiveService.ensureInitialized();
-        final hiveService = HiveService();
+        final secureStorage = SecureStorageService();
         User user = User.fromJson(data["user"]);
-        hiveService.saveUsername(user.username!);
-        hiveService.saveToken(data["token"]);
+        await secureStorage.saveUsername(user.username!);
+        await secureStorage.saveUserId(user.id!);
+        await secureStorage.saveToken(data["token"]);
       }
     } catch (e) {
       throw Exception("erreur lors de la connexion : ${e.toString()}");

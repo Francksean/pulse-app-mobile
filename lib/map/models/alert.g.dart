@@ -7,12 +7,13 @@ part of 'alert.dart';
 // **************************************************************************
 
 Alert _$AlertFromJson(Map<String, dynamic> json) => Alert(
+      id: (json['id'] as num?)?.toInt(),
       launchDate: json['launchDate'] == null
           ? null
           : DateTime.parse(json['launchDate'] as String),
-      deadLine: json['deadLine'] == null
+      deadline: json['deadline'] == null
           ? null
-          : DateTime.parse(json['deadLine'] as String),
+          : DateTime.parse(json['deadline'] as String),
       bloodType: json['bloodType'] as String?,
       status: json['status'] as String?,
       title: json['title'] as String?,
@@ -20,8 +21,9 @@ Alert _$AlertFromJson(Map<String, dynamic> json) => Alert(
     );
 
 Map<String, dynamic> _$AlertToJson(Alert instance) => <String, dynamic>{
+      'id': instance.id,
       'launchDate': instance.launchDate?.toIso8601String(),
-      'deadLine': instance.deadLine?.toIso8601String(),
+      'deadline': instance.deadline?.toIso8601String(),
       'bloodType': instance.bloodType,
       'status': instance.status,
       'title': instance.title,

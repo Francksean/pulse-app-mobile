@@ -1,45 +1,29 @@
 part of 'article_cubit.dart';
 
-sealed class ArticleState extends Equatable {
+abstract class ArticleState extends Equatable {
   const ArticleState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
-class ArticleInitial extends ArticleState {}
+class ArticleInitialState extends ArticleState {}
 
-class ArticleLoading extends ArticleState {}
+class ArticleLoadingState extends ArticleState {}
 
-class ArticleLoaded extends ArticleState {
+class ArticleLoadedState extends ArticleState {
   final List<Article> articles;
-  final Article? selectedArticle;
-
-  const ArticleLoaded({
-    required this.articles,
-    this.selectedArticle,
-  });
+  final bool hasMore;
+  const ArticleLoadedState({required this.articles, required this.hasMore});
 
   @override
-  List<Object> get props =>
-      [articles, if (selectedArticle != null) selectedArticle!];
-
-  ArticleLoaded copyWith({
-    List<Article>? articles,
-    Article? selectedArticle,
-  }) {
-    return ArticleLoaded(
-      articles: articles ?? this.articles,
-      selectedArticle: selectedArticle ?? this.selectedArticle,
-    );
-  }
+  List<Object?> get props => [articles, hasMore];
 }
 
-class ArticleError extends ArticleState {
-  final String message;
-
-  const ArticleError(this.message);
+class ArticleErrorState extends ArticleState {
+  final String errorMessage;
+  const ArticleErrorState(this.errorMessage);
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [errorMessage];
 }

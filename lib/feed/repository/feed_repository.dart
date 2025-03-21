@@ -1,22 +1,31 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:pulse_app_mobile/common/dio/dio_client.dart';
+import 'package:pulse_app_mobile/common/models/paged_response.dart';
+import 'package:pulse_app_mobile/feed/dto/create_article_dto.dart';
 import 'package:pulse_app_mobile/feed/models/article.dart';
 
 class FeedRepository {
   final dioClient = DioClient.instance;
 
-  FeedRepository();
-
-  Future<List<Article>> fetchArticles(int page, int size) async {
+  Future<PagedResponse<Article>> fetchArticles(int page, int size) async {
     try {
-      final response = await dioClient.dio.get("/articles", queryParameters: {
-        'page': page,
-        'size': size,
-      });
+      final response = await dioClient.dio.get(
+        "/articles/all",
+        queryParameters: {
+          'page': page,
+          'size': size,
+        },
+      );
 
       if (response.statusCode == 200) {
-        return (response.data as List)
-            .map((json) => Article.fromJson(json))
-            .toList();
+        // Convertir la réponse JSON en PagedResponse<Article>
+        return PagedResponse<Article>.fromJson(
+          response.data,
+          (json) => Article.fromJson(json),
+        );
       }
       throw Exception('Failed to load articles: ${response.statusCode}');
     } catch (e) {
@@ -24,64 +33,47 @@ class FeedRepository {
     }
   }
 
-  Future<Article> getArticleById(String articleId) async {
+  Future<Article> createArticle(
+      CreateArticleDTO article, List<File> images) async {
     try {
-      final response = await dioClient.dio.get("/articles/$articleId");
-      if (response.statusCode == 200) {
-        return Article.fromJson(response.data);
+      List<MultipartFile> imageFiles = [];
+      for (var imageFile in images) {
+        MultipartFile multipartFile = await MultipartFile.fromFile(
+          imageFile.path,
+          filename: imageFile.path.split('/').last, // Nom du fichier
+        );
+        imageFiles.add(multipartFile);
       }
-      throw Exception('Failed to load article: ${response.statusCode}');
-    } catch (e) {
-      throw Exception('Failed to load article: $e');
-    }
-  }
 
-  Future<void> likeArticle(String articleId, String reaction) async {
-    try {
-      await dioClient.dio.post(
-        "/articles/$articleId/like",
-        data: {'reaction': reaction},
-      );
-    } catch (e) {
-      throw Exception('Failed to like article: $e');
-    }
-  }
+      var formData = FormData.fromMap({
+        "newArticleDatas": MultipartFile.fromString(
+          jsonEncode(article),
+          contentType: DioMediaType('application', 'json'),
+        ),
+        "images": imageFiles,
+      });
 
-  Future<Article> createArticle(Article article) async {
-    try {
+      // Envoyer la requête POST
       final response = await dioClient.dio.post(
-        "/articles",
-        data: article.toJson(),
+        "/articles/create",
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+          headers: {
+            'Accept': 'application/json',
+          },
+        ),
       );
-      if (response.statusCode == 201) {
+
+      // Vérifier le statut de la réponse
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return Article.fromJson(response.data);
+      } else {
+        throw Exception('Failed to create article: ${response.statusCode}');
       }
-      throw Exception('Failed to create article: ${response.statusCode}');
     } catch (e) {
+      print('Error details: $e');
       throw Exception('Failed to create article: $e');
-    }
-  }
-
-  Future<Article> updateArticle(Article article) async {
-    try {
-      final response = await dioClient.dio.put(
-        "/articles/${article.id}",
-        data: article.toJson(),
-      );
-      if (response.statusCode == 200) {
-        return Article.fromJson(response.data);
-      }
-      throw Exception('Failed to update article: ${response.statusCode}');
-    } catch (e) {
-      throw Exception('Failed to update article: $e');
-    }
-  }
-
-  Future<void> deleteArticle(String articleId) async {
-    try {
-      await dioClient.dio.delete("/articles/$articleId");
-    } catch (e) {
-      throw Exception('Failed to delete article: $e');
     }
   }
 }

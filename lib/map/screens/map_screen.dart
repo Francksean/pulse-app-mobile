@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pulse_app_mobile/common/components/custom_bottom_sheet.dart';
 import 'package:pulse_app_mobile/common/constants/app_colors.dart';
@@ -11,7 +12,6 @@ import 'package:pulse_app_mobile/map/cubits/center/map_centers_cubit.dart';
 import 'package:pulse_app_mobile/map/cubits/center/map_centers_state.dart';
 import 'package:pulse_app_mobile/map/cubits/center_details/center_details_cubit.dart';
 import 'package:pulse_app_mobile/map/cubits/center_details/center_details_state.dart';
-import 'package:pulse_app_mobile/map/models/center_details.dart';
 import 'package:pulse_app_mobile/map/utils/map_utils.dart';
 
 class MapScreen extends StatefulWidget {
@@ -21,20 +21,36 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
+  late final _animatedMapController = AnimatedMapController(
+    vsync: this,
+    duration: const Duration(seconds: 1, milliseconds: 500),
+    curve: Curves.easeInOut,
+    cancelPreviousAnimations: true,
+  );
+
+  late LatLngBounds _visibleBounds;
+
+  final double _defaultZoom = 12.0;
+  final double _markerZoom = 15.0;
+
   @override
   void initState() {
     super.initState();
-    // Move your initialization code here
+    // Initialisation des centres à proximité
     final mapCenterCubit = context.read<MapCentersCubit>();
     final locationState = context.read<LocationCubit>().state;
     if (locationState is LocationLoadedState) {
       final center = LatLng(
           locationState.location.latitude!, locationState.location.longitude!);
       List<LatLng> corners = MapUtils.getSquareCorners(center, 10);
-      print(corners);
       mapCenterCubit.loadCenters(corners);
     }
+
+    _visibleBounds = LatLngBounds(
+      const LatLng(-90, -180), // Coin sud-ouest
+      const LatLng(90, 180), // Coin nord-est
+    );
   }
 
   @override
@@ -44,20 +60,27 @@ class _MapScreenState extends State<MapScreen> {
         if (state is LocationLoadedState) {
           final initialLongitude = state.location.longitude!;
           final initialLatitude = state.location.latitude!;
+
           return FlutterMap(
+            mapController: _animatedMapController.mapController,
             options: MapOptions(
-                initialZoom: 12,
-                minZoom: 3,
-                initialCenter: LatLng(initialLatitude, initialLongitude)),
+              initialZoom: _defaultZoom,
+              minZoom: 3,
+              initialCenter: LatLng(initialLatitude, initialLongitude),
+              // Surveiller les mouvements de la carte
+              onMapEvent: (MapEvent event) {
+                if (event is MapEventMoveEnd) {
+                  _updateVisibleBounds();
+                }
+              },
+            ),
             children: [
               openStreetMapTileLayer,
               BlocBuilder<MapCentersCubit, MapCentersState>(
                 builder: (context, state) {
-                  // Initial marker
+                  // Marqueur initial
                   final initialMarker = Marker(
                     point: LatLng(initialLatitude, initialLongitude),
-                    // height: 50,
-                    // width: 50,
                     child: const Icon(
                       Icons.location_on_rounded,
                       color: AppColors.orange,
@@ -75,6 +98,9 @@ class _MapScreenState extends State<MapScreen> {
                           rotate: false,
                           child: GestureDetector(
                             onTap: () {
+                              _animateToMarker(LatLng(
+                                  element.latitude!, element.longitude!));
+
                               showModalBottomSheet(
                                 barrierColor: Colors.transparent,
                                 backgroundColor: Colors.transparent,
@@ -108,15 +134,11 @@ class _MapScreenState extends State<MapScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              // width: 100,
-                              // height: 100,
-                              alignment: Alignment.center,
-                              child: const Icon(
-                                Icons.add_circle_rounded,
-                                color: AppColors.red,
-                                size: 36,
-                              ),
+                            child: Image.asset(
+                              "./assets/images/pincenter.png", // URL de l'icône
+                              width: 100, // Largeur de l'image
+                              height: 100, // Hauteur de l'image
+                              fit: BoxFit.cover, // Ajuster l'image
                             ),
                           ),
                         ),
@@ -131,9 +153,7 @@ class _MapScreenState extends State<MapScreen> {
           );
         }
         return FlutterMap(
-          options: const MapOptions(
-              // initialCenter: LatLng(initalLatitude, initalLongititude)
-              ),
+          options: const MapOptions(),
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -143,6 +163,39 @@ class _MapScreenState extends State<MapScreen> {
         );
       },
     );
+  }
+
+  void _animateToMarker(LatLng markerPosition) {
+    _animatedMapController.centerOnPoint(
+      markerPosition,
+      zoom: _markerZoom,
+      customId: 'marker_animation',
+    );
+  }
+
+  void _updateVisibleBounds() {
+    _visibleBounds = _animatedMapController.mapController.camera.visibleBounds;
+
+    final minLat = _visibleBounds.south;
+    final minLng = _visibleBounds.west;
+    final maxLat = _visibleBounds.north;
+    final maxLng = _visibleBounds.east;
+
+    print(
+        'Limites visibles de la carte: minLat: $minLat, minLng: $minLng, maxLat: $maxLat, maxLng: $maxLng');
+
+    _loadCentersInVisibleArea(minLat, minLng, maxLat, maxLng);
+  }
+
+  void _loadCentersInVisibleArea(
+      double minLat, double minLng, double maxLat, double maxLng) {
+    List<LatLng> corners = [
+      LatLng(minLat, minLng), // Coin sud-ouest
+      LatLng(maxLat, maxLng), // Coin nord-est
+    ];
+
+    final mapCenterCubit = context.read<MapCentersCubit>();
+    mapCenterCubit.loadCenters(corners);
   }
 }
 

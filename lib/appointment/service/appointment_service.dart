@@ -9,7 +9,7 @@ class AppointmentService {
       final appointmentData = appointment.toJson();
 
       final response = await dioClient.dio.post(
-        "/appointments/new",
+        "/appointments/create",
         data: appointmentData,
       );
 

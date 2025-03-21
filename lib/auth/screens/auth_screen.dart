@@ -43,7 +43,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _isLoginScreen
+                      !_isLoginScreen
                           ? "Lets subscribe first !"
                           : "Welcome Back !",
                       style: const TextStyle(

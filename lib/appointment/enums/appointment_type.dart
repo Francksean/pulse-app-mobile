@@ -1,1 +1,1 @@
-enum AppointmentType { levy, donation, advice }
+enum AppointmentType { LEVY, DONATION, ADVICE }

@@ -9,8 +9,11 @@ import 'package:pulse_app_mobile/campaign/screens/campaign_details_screen.dart';
 import 'package:pulse_app_mobile/common/common_scaffold.dart';
 import 'package:pulse_app_mobile/common/constants/app_colors.dart';
 import 'package:pulse_app_mobile/common/cubits/location/location_cubit.dart';
+import 'package:pulse_app_mobile/common/screens/welcome_screen.dart';
 import 'package:pulse_app_mobile/feed/cubit/article_cubit.dart';
 import 'package:pulse_app_mobile/feed/cubit/comment_cubit.dart';
+import 'package:pulse_app_mobile/feed/cubit/create_article_cubit.dart';
+import 'package:pulse_app_mobile/feed/screens/create_article_screen.dart';
 
 void main() async {
   runApp(const MyApp());
@@ -27,8 +30,8 @@ class MyApp extends StatelessWidget {
       routes: [
         GoRoute(
           path: '/',
-          // builder: (context, state) => const WelcomeScreen(),
-          builder: (context, state) => const CommonScaffold(),
+          builder: (context, state) => const WelcomeScreen(),
+          // builder: (context, state) => const CommonScaffold(),
         ),
         GoRoute(
           path: "/auth",
@@ -37,6 +40,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: "/app",
           builder: (context, state) => const CommonScaffold(),
+        ),
+        GoRoute(
+          path: "/create/article",
+          builder: (context, state) => const CreateArticleScreen(),
         ),
         GoRoute(
           path: "/campaign/:campaignId/:centerName",
@@ -70,6 +77,12 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => CommentCubit(),
+        ),
+        BlocProvider(
+          create: (context) => CreateArticleCubit(),
+        ),
+        BlocProvider(
+          create: (context) => ArticleCubit(),
         ),
       ],
       child: MaterialApp.router(

@@ -128,7 +128,7 @@ class CenterDetailsWidget extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     context.push(
-                        "/appointment-creation/${centerDetails.centerSubDetails!.id}/${centerDetails.centerSubDetails!.name}");
+                        "/appointment-creation/${centerDetails.centerSubDetails!.id}");
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.orange,

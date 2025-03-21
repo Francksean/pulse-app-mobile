@@ -21,7 +21,7 @@ class CustomButton extends StatelessWidget {
   final double iconSpacing;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onPressed,
     this.isLoading = false,
@@ -35,7 +35,7 @@ class CustomButton extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.iconSpacing = 8.0,
-  }) : super(key: key);
+  });
 
   final bool _isEnabled = true;
 
@@ -65,7 +65,7 @@ class CustomButton extends StatelessWidget {
               mainAxisSize: width == null ? MainAxisSize.min : MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (prefixIcon != null) ...[
+                if (prefixIcon != null && !isLoading) ...[
                   prefixIcon!,
                   SizedBox(width: iconSpacing),
                 ],
@@ -89,7 +89,7 @@ class CustomButton extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                if (suffixIcon != null) ...[
+                if (suffixIcon != null && !isLoading) ...[
                   SizedBox(width: iconSpacing),
                   suffixIcon!,
                 ],

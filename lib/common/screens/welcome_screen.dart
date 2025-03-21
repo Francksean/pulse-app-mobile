@@ -7,7 +7,7 @@ import 'package:pulse_app_mobile/common/constants/app_colors.dart';
 import 'package:pulse_app_mobile/common/constants/app_font_sizes.dart';
 import 'package:pulse_app_mobile/common/cubits/location/location_cubit.dart';
 import 'package:pulse_app_mobile/common/cubits/location/location_state.dart';
-import 'package:pulse_app_mobile/common/database/hive_service.dart';
+import 'package:pulse_app_mobile/common/database/secure_storage_service.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -17,20 +17,24 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+  final _secureStorage = SecureStorageService();
+
   @override
   Widget build(BuildContext context) {
+    _secureStorage.deleteAll();
     return Scaffold(
       body: BlocListener<LocationCubit, LocationState>(
-        listener: (context, state) {
-          // await HiveService.ensureInitialized();
-          // final hiveService = HiveService();
-          // if (state is LocationLoadedState) {
-          //   if (hiveService.getUsername() != null &&
-          //       hiveService.getToken() != null) {
-          context.go("/app");
-          // }
-          // context.push("/auth");
-          // }
+        listener: (context, state) async {
+          if (state is LocationLoadedState) {
+            final username = await _secureStorage.getUsername();
+            final token = await _secureStorage.getToken();
+
+            if (username != null && token != null) {
+              context.go("/app");
+            } else {
+              context.push("/auth");
+            }
+          }
         },
         child: Container(
           decoration: const BoxDecoration(color: AppColors.white),

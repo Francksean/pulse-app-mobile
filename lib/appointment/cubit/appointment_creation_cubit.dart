@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:pulse_app_mobile/appointment/model/appointment.dart';
 import 'package:pulse_app_mobile/appointment/service/appointment_service.dart';
+import 'package:pulse_app_mobile/common/database/secure_storage_service.dart';
 
 part 'appointment_creation_state.dart';
 
@@ -14,6 +15,9 @@ class AppointmentCreationCubit extends Cubit<AppointmentCreationState> {
     emit(AppointmentCreationLoading());
 
     try {
+      final secureStorage = SecureStorageService();
+      final donorId = await secureStorage.getUserId();
+      appointment.donorId = donorId;
       final createdAppointment =
           await appointmentService.createAppointment(appointment);
 
